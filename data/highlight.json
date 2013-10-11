@@ -1,0 +1,12 @@
+{
+    "query" : {
+        "match": {
+            "description" : "hops"
+        }
+    },
+    "highlight" : {
+        "fields" : {
+            "description" : {"fragment_size" : 30, "number_of_fragments" : 3}
+        }
+    }
+}

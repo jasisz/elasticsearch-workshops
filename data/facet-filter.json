@@ -1,0 +1,17 @@
+{
+    "query" : {
+        "match_all": { }
+    },
+    "filter" : {
+        "range" : {
+            "IBU" : { "from" : 80 }
+        }
+    },
+    "facets" : {
+        "hop" : {
+            "terms" : {
+                "field" : "hop"
+            }
+        }
+    }
+}

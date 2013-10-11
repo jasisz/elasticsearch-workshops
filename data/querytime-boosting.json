@@ -1,0 +1,8 @@
+{
+    "query" : {
+        "multi_match" : {
+            "query" : "ipa",
+            "fields" : [ "name^4", "style^2", "description"  ]
+        }
+    }
+}

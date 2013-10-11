@@ -55,6 +55,9 @@
                     <section>
                         <h2>Piszę opowiadania</h2>
                     </section>
+                    <section>
+                        <h2>Pracuję w Sunscrapers</h2>
+                    </section>
                 </section>
                 <section>
                     <section>
@@ -341,12 +344,13 @@ index.number_of_replicas: 2</code></pre>
                     </section>
                     <section>
                         <h2>Załadujmy dane</h2>
-                        <pre><code>curl -XPOST 'http://localhost:9200/drinks/beer/_bulk' --data-binary @data.json</code></pre>
+                        <pre><code>curl -XPOST 'http://localhost:9200/drinks/beer/_bulk' --data-binary @data.txt</code></pre>
                         <p>Przykład bulk API.</p>
                     </section>
                     <section>
                         <h2>Najprostsze query</h2>
                         <pre><code>{
+    "from" : 0, "size" : 10,
     "query" : {
         "match": {
             "style" : "IPA"
@@ -354,7 +358,7 @@ index.number_of_replicas: 2</code></pre>
     }
 }
 </code></pre>
-                        <pre><code>curl -XGET "http://localhost:9200/drinks/beer/_search" -d @query1.json</code></pre>
+                        <pre><code>curl -XGET "http://localhost:9200/drinks/beer/_search" -d @simple-query.json</code></pre>
                     </section>
                     <section>
                         <h2>Wynik query</h2>
@@ -369,7 +373,7 @@ index.number_of_replicas: 2</code></pre>
         "term" : { "style" : "ipa" }
     }
 }</code></pre>
-                        <pre><code>curl -XGET "http://localhost:9200/drinks/beer/_search" -d @query1.json</code></pre>
+                        <pre><code>curl -XGET "http://localhost:9200/drinks/beer/_search" -d @simple-filter.json</code></pre>
                     </section>
                     <section>
                         <h2>To jaka jest różnica?</h2>
@@ -377,6 +381,7 @@ index.number_of_replicas: 2</code></pre>
                     <section>
                         <p><strong>Filtry</strong> tylko filtrują, są dużo szybsze i podlegają cachowaniu.</p>
                         <p><strong>Query</strong> dopasowują, są wolniejsze, ale o nie naprawdę chodzi w wyszukiwaniu tekstowym.</p>
+                        <pre><code>curl -XGET "http://localhost:9200/drinks/beer/_explain" -d @simple-query-explain.json</code></pre>
                     </section>
                     <section>
                         <h2>Łączenie</h2>
@@ -395,21 +400,184 @@ index.number_of_replicas: 2</code></pre>
 </code></pre>
                         <pre><code>curl -XGET "http://localhost:9200/_search" -d @query-filter.json</code></pre>
                     </section>
+                    <section>
+                        <h2>Dodatkowe filtry i zapytania</h2>
+                        <p>Istnieje cała masa filtrów i query, stąd nie </p>
+                    </section>
                 </section>
 
                 <section>
                     <section>
-                        <h2>Pogrzebmy w ustawieniach</h2>
-                        <div>Czy już zauważyliście, że Elasticsearch jest zbyt przyjazny?</div>
-                        <div>
-                            <br>
-                        </div>
-                        <div>./config/elasticsearch.yml</div>
-                        <div>
-                            <pre><code>cluster.name: elasticsearch </code><code>node.name: "Kapitan Żbik"</code><code><br></code><code># a na produkcji koniecznie:</code><code>discovery.zen.minimum_master_nodes: 2</code><code>discovery.zen.ping.multicast.enabled: false</code><code>discovery.zen.ping.unicast.hosts: ["host1", "host2:port"]<br></code><code>action.disable_delete_all_indices: true<br></code></pre>
-                        </div>
+                        <h2>Dodatki do wyszukiwania</h2>
+                    </section>
+                    <section>
+                        <h2>Faceting</h2>
+                        <img src="images/faceting.png" alt="Faceting przykład">
+                    </section>
+                    <section>
+                        <h2>Pierwszy faceting</h2>
+                        <pre><code>{
+    "facets" : {
+        "hop" : {
+            "terms" : {
+                "field" : "hop",
+                "size" : 4
+            }
+        }
+    }
+}</code></pre>
+                        <pre><code>curl -XGET "http://localhost:9200/_search" -d @facet.json</code></pre>
+                    </section>
+                    <section>
+                        <h2>Inne facety</h2>
+                        <pre><code>{
+    "facets" : {
+        "ibu" : {
+            "range" : {
+                "field" : "IBU",
+                "ranges" : [
+                    { "to" : 20 },
+                    { "from" : 20, "to" : 50 },
+                    { "from" : 50, "to" : 100 },
+                    { "from" : 100 }
+                ]
+            }
+        },
+        "alcohol_stats" : {
+            "statistical" : {
+                "field" : "ABV"
+            }
+        }
+    }
+}</code></pre>
+                        <pre><code>curl -XGET "http://localhost:9200/_search" -d @facet-other-types.json</code></pre>
+                    </section>
+                    <section>
+                        <h2>Pułapka przy facetach</h2>
+                        <pre><code>{
+    "query" : {
+        "match_all": { }
+    },
+    "filter" : {
+        "range" : {
+            "IBU" : { "from" : 80 }
+        }
+    },
+    "facets" : {
+        "hop" : {
+            "terms" : {
+                "field" : "hop"
+            }
+        }
+    }
+}</code></pre>
+                        <pre><code>curl -XGET "http://localhost:9200/_search" -d @facet-filter.json</code></pre>
+                    </section>
+                    <section>
+                        <h2>Filtered Query</h2>
+                        <p>Facety są uruchamiane zawsze na query, bez filtrów. Stąd taki cudak.</p>
+                        <pre><code>{
+    "query" : {
+        "filtered": {
+            "query": {
+                "match_all": { }
+            },
+            "filter" : {
+                "range" : {
+                    "IBU" : { "from" : 80 }
+                }
+            }
+        }
+    },
+    "facets" : {
+        "hop" : {
+            "terms" : {
+                "field" : "hop"
+            }
+        }
+    }
+}</code></pre>
+                        <pre><code>curl -XGET "http://localhost:9200/_search" -d @facet-filtered-query.json</code></pre>
+                    </section>
+                    <section>
+                        <h2>Podświetlanie</h2>
+                        <pre><code>{
+    "query" : {
+        "match": {
+            "description" : "hops"
+        }
+    },
+    "highlight" : {
+        "fields" : {
+            "description" : {"fragment_size" : 30, "number_of_fragments" : 3}
+        }
+    }
+}</code></pre>
+                        <pre><code>curl -XGET "http://localhost:9200/_search" -d @highlight.json</code></pre>
+                    </section>
+                    <section>
+                        <h2>Boostowanie przy wyszukiwaniu</h2>
+                        <p>To tylko jeden z możliwych sposobów.</p>
+                        <pre><code>{
+    "query" : {
+        "multi_match" : {
+            "query" : "ipa",
+            "fields" : [ "name^4", "style^2", "description"  ]
+        }
+    }
+}</code></pre>
+                        <pre><code>curl -XGET "http://localhost:9200/_search" -d @querytime-boosting.json</code></pre>
                     </section>
                 </section>
+
+                <section>
+                    <section>
+                        <h2>Teraz z innej bajki</h2>
+                        <p>O tym jak ujarzmić Elasticsearcha "na produkcji"</p>
+                    </section>
+                    <section>
+                        <h2>Pogrzebmy w ustawieniach</h2>
+                        <p>./config/elasticsearch.yml jest bardzo dobrze opisany</p>
+                    </section>
+                    <section>
+                        <h2>Nazwa węzła</h2>
+                        <pre><code>node.name: "Kapitan Żbik"</code></pre>
+                        <p>Dzięki temu będzie możliwość zidentyfikowania maszyny.</p>
+                        <p>Bez tego Elasticsearch losuje nazwę spośród bazy bohaterów Marvela.</p>
+                    </section>
+                    <section>
+                        <h2>Tworzenie klastra</h2>
+                        <p>Inaczej Elasticsearch szuka przyjaciół.</p>
+                        <pre><code>cluster.name: super_unikalny_klaster
+
+discovery.zen.ping.multicast.enabled: false
+discovery.zen.ping.unicast.hosts: ["host1", "host2:port"]</code></pre>
+                    </section>
+                    <section>
+                        <h2>Trzy serwery</h2>
+                        <pre><code>discovery.zen.minimum_master_nodes: 2</code></pre>
+                        <p>W innym wypadku może dojść do tzw. <em>split-brain</em> i problem murowany.</p>
+                    </section>
+                    <section>
+                        <h2>Czym to monitorować?</h2>
+                        <p>Polecam użycie pluginów do Elasticsearcha. Po instalacji pluginu trzeba zrestartować Elasticsearcha.</p>
+                        <pre><code>./bin/plugin -install karmi/elasticsearch-paramedic</code></pre>
+                        <p><a href="http://localhost:9200/_plugin/paramedic/index.html" target="_blank">http://localhost:9200/_plugin/paramedic/</a></p>
+                        <pre><code>./bin/plugin -install mobz/elasticsearch-head</code></pre>
+                        <p><a href="http://localhost:9200/_plugin/head/index.html" target="_blank">http://localhost:9200/_plugin/head/</a></p>
+                    </section>
+                    <section>
+                        <h2>Inne pluginy</h2>
+                        <p>Wśród pluginów są też:</p>
+                        <ul>
+                            <li>analizatory do języka polskiego</li>
+                            <li>różne <strong>rivery</strong> (m.in. CouchDB, RabbitMQ, MongoDB, Redis)</li>
+                            <li>plugin do New Relica</li>
+                            <li>i kilka innych ciekawych rzeczy</li>
+                        </ul>
+                    </section>
+                </section>
+
             </div>
 
 		<script src="lib/js/head.min.js"></script>

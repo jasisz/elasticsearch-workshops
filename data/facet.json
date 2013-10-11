@@ -1,0 +1,10 @@
+{
+    "facets" : {
+        "hop" : {
+            "terms" : {
+                "field" : "hop",
+                "size" : 4
+            }
+        }
+    }
+}
