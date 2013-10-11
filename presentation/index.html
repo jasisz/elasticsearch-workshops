@@ -57,6 +57,8 @@
                     </section>
                     <section>
                         <h2>Pracuję w Sunscrapers</h2>
+                        <p>Gdzie głównie tworzę aplikacje internetowe w Pythonie.</p>
+                        <p>Na co dzień pracuję z Elasticsearchem.</p>
                     </section>
                 </section>
                 <section>
@@ -76,6 +78,17 @@
                     <section>
                         <h1>Super!</h1>
                         <h2>I my to wszystko zobaczymy?</h2>
+                    </section>
+                    <section>
+                        <h2>Jak to będzie wyglądało</h2>
+                        <p>Na większości slajdów będą przeróżne zapytania do Elasticsearcha,
+                        które należy powtarzać na swoich komputerach.</p>
+                        <p>Na części slajdów są zadania dodatkowe <em>z gwiazdką</em>, do samodzielnego wykonywania dla <em>prymusów</em>.</p>
+                    </section>
+                    <section>
+                        <h2>Repozytorium z danymi</h2>
+                        <pre><code>git clone git@github.com:jasisz/elasticsearch-workshops.git</code></pre>
+                        <p>Znajdują się tam też trudniejsze i bardziej rozbudowane zapytania z dalszej części warsztatów.</p>
                     </section>
                 </section>
                 <section>
@@ -140,6 +153,7 @@
                         <p>Warto użyć dodatkowego parametru <strong>pretty</strong>, który da ładnie sfromatowaną odpowiedź</p>
                         <pre><code>curl -XGET 'http://localhost:9200/_stats?pretty'</code></pre>
                         <pre><code>curl -XGET 'http://localhost:9200/_search?pretty'</code></pre>
+                        <p><small>* spróbować zobaczyć statystyki dla pojedynczego indeksu</small></p>
                     </section>
                     <section>
                         <h2>Zacznijmy od początku</h2>
@@ -147,6 +161,7 @@
                         <p>To akurat da się wyłączyć w config/elasticsearch.yml</p>
                         <pre><code>action.disable_delete_all_indices: true</code></pre>
                         <p>Ale to niewielka pomoc.</p>
+                        <p><small>* sprawdzić czy w ten sam sposób można usunąć indeks i dokument</small></p>
                     </section>
                     <section>
                         <h2>Liczba shardów</h2>
@@ -176,6 +191,7 @@ index.number_of_replicas: 2</code></pre>
         { "add" : { "index" : "drinks-new-setup", "alias" : "drinks" } }
     ]
 }'</code></pre>
+                        <p><small>* stworzyć indeksy i wypróbować to w praktyce</small></p>
                     </section>
                 </section>
                 <section>
@@ -209,7 +225,6 @@ index.number_of_replicas: 2</code></pre>
     "brewery" : "Ursa Maior",
     "ABV" : "average"
 }'</code></pre>
-
                     </section>
                     <section>
                         <h2>Mapping</h2>
@@ -304,11 +319,12 @@ index.number_of_replicas: 2</code></pre>
                     </section>
                     <section>
                         <h2>Uproszczone szukanie</h2>
+                        <p>Wiele komend w Elasticsearchu można wykonywać w podobny sposób na wielu indeksach i typach.</p>
                         <pre><code>curl -XGET 'http://localhost:9200/_search?q=name:ursa'</code></pre>
                         <pre><code>curl -XGET 'http://localhost:9200/_all/beer/_search?q=name:ursa'</code></pre>
                         <pre><code>curl -XGET 'http://localhost:9200/drinks,books,cars/_search?q=name:ursa'</code></pre>
                         <pre><code>curl -XGET 'http://localhost:9200/drinks/beer/_search?q=name:ursa'</code></pre>
-                        <p>Które polecenie nie działa i dlaczego?</p>
+                        <p><small>* które polecenie u nas nie działa i dlaczego?</small></p>
                     </section>
                     <section>
                         <h2>Rezultaty wyszukiwania</h2>
@@ -346,6 +362,7 @@ index.number_of_replicas: 2</code></pre>
                         <h2>Załadujmy dane</h2>
                         <pre><code>curl -XPOST 'http://localhost:9200/drinks/beer/_bulk' --data-binary @data.txt</code></pre>
                         <p>Przykład bulk API.</p>
+                        <p><small>* dodać swój własny wpis</small></p>
                     </section>
                     <section>
                         <h2>Najprostsze query</h2>
@@ -359,6 +376,7 @@ index.number_of_replicas: 2</code></pre>
 }
 </code></pre>
                         <pre><code>curl -XGET "http://localhost:9200/drinks/beer/_search" -d @simple-query.json</code></pre>
+                        <p><small>* wyszukać piwa z "ale" w nazwie</small></p>
                     </section>
                     <section>
                         <h2>Wynik query</h2>
@@ -374,6 +392,7 @@ index.number_of_replicas: 2</code></pre>
     }
 }</code></pre>
                         <pre><code>curl -XGET "http://localhost:9200/drinks/beer/_search" -d @simple-filter.json</code></pre>
+                        <p><small>* wyfiltrować piwa z browaru Artezan</small></p>
                     </section>
                     <section>
                         <h2>To jaka jest różnica?</h2>
@@ -381,7 +400,7 @@ index.number_of_replicas: 2</code></pre>
                     <section>
                         <p><strong>Filtry</strong> tylko filtrują, są dużo szybsze i podlegają cachowaniu.</p>
                         <p><strong>Query</strong> dopasowują, są wolniejsze, ale o nie naprawdę chodzi w wyszukiwaniu tekstowym.</p>
-                        <pre><code>curl -XGET "http://localhost:9200/drinks/beer/_explain" -d @simple-query-explain.json</code></pre>
+                        <pre><code>curl -XGET "http://localhost:9200/drinks/beer" -d @simple-query-explain.json</code></pre>
                     </section>
                     <section>
                         <h2>Łączenie</h2>
@@ -399,10 +418,11 @@ index.number_of_replicas: 2</code></pre>
 }
 </code></pre>
                         <pre><code>curl -XGET "http://localhost:9200/_search" -d @query-filter.json</code></pre>
+                        <p><small>* wyszukać tylko piwa o IBU >= 70 lub ABV >= 5.7% (podpowiedź  - filtr or)</small></p>
                     </section>
                     <section>
                         <h2>Dodatkowe filtry i zapytania</h2>
-                        <p>Istnieje cała masa filtrów i query, stąd nie </p>
+                        <p>Istnieje cała masa filtrów i query, stąd nie omówimy większości z nich.</p>
                     </section>
                 </section>
 
@@ -427,6 +447,7 @@ index.number_of_replicas: 2</code></pre>
     }
 }</code></pre>
                         <pre><code>curl -XGET "http://localhost:9200/_search" -d @facet.json</code></pre>
+                        <p><small>* spróbować z innymi polami (które się nadają?)</small></p>
                     </section>
                     <section>
                         <h2>Inne facety</h2>
@@ -475,7 +496,7 @@ index.number_of_replicas: 2</code></pre>
                     </section>
                     <section>
                         <h2>Filtered Query</h2>
-                        <p>Facety są uruchamiane zawsze na query, bez filtrów. Stąd taki cudak.</p>
+                        <p>Facety są uruchamiane zawsze na query, bez filtrów.</p>
                         <pre><code>{
     "query" : {
         "filtered": {
@@ -575,6 +596,12 @@ discovery.zen.ping.unicast.hosts: ["host1", "host2:port"]</code></pre>
                             <li>plugin do New Relica</li>
                             <li>i kilka innych ciekawych rzeczy</li>
                         </ul>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>Dziękuję!</h1>
                     </section>
                 </section>
 
