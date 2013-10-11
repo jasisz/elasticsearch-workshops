@@ -175,6 +175,99 @@ index.number_of_replicas: 2</code></pre>
                         <pre><code>'</code></pre>
                     </section>
                 </section>
+                <section>
+                    <section>
+                        <h2>Mapping</h2>
+                        <p>Czyli ciemna strona Elasticsearcha i dlaczego tak naprawdę "bezschematowość" to tylko slogan.</p>
+                    </section>
+                    <section>
+                        <h3>Tym razem już sami damy id</h3>
+                        <pre><code>curl -XPUT 'http://localhost:9200/drinks/beer/1' -d '</code></pre>
+                        <pre><code>{
+    "name" : "Sweet Cow",
+    "style" : "Milk stout",
+    "brewery" : "AleBrowar",
+    "ABV" : 5,
+    "rating": 7
+}</code></pre>
+                        <pre><code>'</code></pre>
+                    </section>
+                    <section>
+                        <h3>Dodatkowe pola</h3>
+                        <pre><code>curl -XPOST 'http://localhost:9200/drinks/beer/2' -d '</code></pre>
+                        <pre><code>{
+    "name" : "Atak chmielu",
+    "brewery" : "PINTA",
+    "IBU" : 58,
+    "rating" : [8.2, 3, 5]
+}</code></pre>
+                        <pre><code>'</code></pre>
+                    </section>
+                    <section>
+                        <h3>To się jednak nie uda</h3>
+                        <pre><code>curl -XPOST 'http://localhost:9200/drinks/beer/3' -d '</code></pre>
+                        <pre><code>{
+    "name" : "Ursa z Połoniny",
+    "brewery" : "Ursa Maior",
+    "ABV" : "average"
+}</code></pre>
+                        <pre><code>'</code></pre>
+                    </section>
+                    <section>
+                        <h2>Mapping</h2>
+                        <p>To nic innego jak schemat, który jednak Elasticsearch sprytnie przed nami ukrywa.</p>
+                        <pre><code>curl -XGET 'http://localhost:9200/drinks/beer/_mapping?pretty'</code></pre>
+                        <pre><code>{
+    "beer" : {
+        "properties" : {
+            "ABV" : {
+                "type" : "long"
+            },
+            "IBU" : {
+                "type" : "long"
+            },
+            "brewery" : {
+                "type" : "string"
+            },
+            "name" : {
+                "type" : "string"
+            },
+            "rating" : {
+                "type" : "long"
+            },
+            "style" : {
+                "type" : "string"
+            }
+        }
+    }
+}</code></pre>
+                    </section>
+                    <section>
+                        <h2>Własny mapping</h2>
+                        <p>Daje pełną kontrolę i gwarantuje brak niespodzianek.</p>
+                        <pre><code>curl -XPUT 'http://localhost:9200/drinks/beer/_mapping' -d '</code></pre>
+                        <pre><code>{
+    "beer" : {
+        "properties" : {
+            "ABV" : {
+                "type" : "long",
+                "null_value" : 0.0,
+                "ignore_malformed" : true
+            },
+            "name" : {
+                "type" : "string",
+                "boost" : 2.0
+            },
+            "description" : {
+                "type" : "string",
+                "analyzer" : "snowball"
+            }
+        }
+    }
+}</code></pre>
+                        <pre><code>'</code></pre>
+                    </section>
+                </section>
 
 
 
