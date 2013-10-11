@@ -18,3 +18,7 @@
 {"name":"Viva la Wita!","style":"Imperial Witbier","brewery":"PINTA","malt":["Pilsner","Wheat"],"hop":["Saaz","Citra","Palisade"],"yeast":"S-33","description":"Exotic spices, refreshing oranges, wheat and more velvety than usual aromatic hops from the Czech Republic, Slovenia and the USA. Full cup experience and a limited amount of alcohol - enjoy the Imperial Witbier."}
 {"create":{"_id":10}}
 {"name":"Ce n'est pas IPA","style":"Biere de Garde","brewery":"PINTA","ABV":5.7,IBU:18,"malt":["Pale Ale","Cararbelge"],"hop":["Aramis","Strissespalter"],"yeast":"T-58","description":"North of France. It is a warm August afternoon. Men get off the tractor, sit down with a salad and chicken sandwiches. On the table, a glass of beer. Moments rest, improve faded berets. Younger cut ripe camembert, reaches for a bottle of beer. Suddenly, the older one asks anxiously: - Francois, this is not ...? - But, Father. This is not the IPA."}
+{"create":{"_id":11}}
+{"name":"Pacific Pale Ale","style":"American Pale Ale","brewery":"Artezan","ABV":5,"malt":["Pale Ale", "Pilsner"],"hop":["Amarillo", "Cascade", "Chinook", "Pacific Jade"],"description":"Top-fermented beer, American-style pale ale. Light and dry. Usage of American and New Zealand hops resin built a fruity bouquet and flavor and a pleasant bitter taste."}
+{"create":{"_id":12}}
+{"name":"Czarny Wdowiec","style":"Dry Stout","brewery":"Browar Piwoteka","ABV":4.9,"IBU":97,"malt":["Wheat", "Biscuit", "Carared", "Pilsner"],"hop":["Target", "Chinook", "Simcoe"]}
