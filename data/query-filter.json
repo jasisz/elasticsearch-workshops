@@ -1,0 +1,12 @@
+{
+    "query" : {
+        "match": {
+            "_all" : "hops"
+        }
+    },
+    "filter" : {
+        "range" : {
+            "IBU" : { "from" : 50, "to" : 100 }
+        }
+    }
+}

@@ -96,16 +96,14 @@
                     </section>
                     <section>
                         <h2>Pierwszy dokument</h2>
-                        <pre><code>curl -XPOST 'http://localhost:9200/drinks/beer/' -d '</code></pre>
-                        <pre><code>{
+                        <pre><code>curl -XPOST 'http://localhost:9200/drinks/beer/' -d '{
     "name" : "Atak chmielu",
     "style" : "American IPA",
     "brewery" : "PINTA",
     "ABV" : 6.1,
     "IBU" : 58,
     "rating" : 8.2
-}</code></pre>
-                        <pre><code>'</code></pre>
+}'</code></pre>
                             <p>Elasticsearch automatycznie stworzy nie tylko indeks, ale wszystko czego mu trzeba.</p>
                             <h3>Radzę z tego nie korzystać.</h3>
                     </section>
@@ -131,6 +129,12 @@
                             <li>stworzył typ <strong>beer</strong> i "zgadł" do niego mapping</li>
                             <li>przydzielił dokumentowi koszmarne id</li>
                         </ul>
+                    </section>
+                    <section>
+                        <h2>Jak to zobaczyć?</h2>
+                        <pre><code>curl -XGET 'http://localhost:9200/_stats'</code></pre>
+                        <pre><code>curl -XGET 'http://localhost:9200/_search'</code></pre>
+                        <p>Warto użyć dodatkowego parametru <strong>pretty</strong>, który da ładnie sfromatowaną odpowiedź</p>
                         <pre><code>curl -XGET 'http://localhost:9200/_stats?pretty'</code></pre>
                         <pre><code>curl -XGET 'http://localhost:9200/_search?pretty'</code></pre>
                     </section>
@@ -146,14 +150,12 @@
                         <p>Nie można zmienić liczby shardów na działającym indeksie.
                             Domyślne pięć to za mało, nic nie szkodzi dać więcej.
                         </p>
-                        <pre><code>curl -XPUT 'http://localhost:9200/drinks/' -d '</code></pre>
-                        <pre><code>{
+                        <pre><code>curl -XPUT 'http://localhost:9200/drinks/' -d '{
     "settings" : {
         "number_of_shards" : 32,
         "number_of_replicas" : 2
     }
-}</code></pre>
-                        <pre><code>'</code></pre>
+}'</code></pre>
                         <p>Lub w ustawieniach</p>
                         <pre><code>index.number_of_shards: 32
 index.number_of_replicas: 2</code></pre>
@@ -165,14 +167,12 @@ index.number_of_replicas: 2</code></pre>
                             Na zewnątrz używaj nazw aliasów.
                         </p>
                         <p>Dzięki temu kiedyś to Cię uratuje:</p>
-                        <pre><code>curl -XPOST 'http://localhost:9200/_aliases' -d '</code></pre>
-                        <pre><code>{
+                        <pre><code>curl -XPOST 'http://localhost:9200/_aliases' -d '{
     "actions" : [
         { "remove" : {"index" : "drinks-original", "alias" : "drinks" } },
         { "add" : { "index" : "drinks-new-setup", "alias" : "drinks" } }
     ]
-}</code></pre>
-                        <pre><code>'</code></pre>
+}'</code></pre>
                     </section>
                 </section>
                 <section>
@@ -182,36 +182,31 @@ index.number_of_replicas: 2</code></pre>
                     </section>
                     <section>
                         <h3>Tym razem już sami damy id</h3>
-                        <pre><code>curl -XPUT 'http://localhost:9200/drinks/beer/1' -d '</code></pre>
-                        <pre><code>{
+                        <pre><code>curl -XPUT 'http://localhost:9200/drinks/beer/1' -d '{
     "name" : "Sweet Cow",
     "style" : "Milk stout",
     "brewery" : "AleBrowar",
     "ABV" : 5,
     "rating": 7
-}</code></pre>
-                        <pre><code>'</code></pre>
+}'</code></pre>
                     </section>
                     <section>
                         <h3>Dodatkowe pola</h3>
-                        <pre><code>curl -XPOST 'http://localhost:9200/drinks/beer/2' -d '</code></pre>
-                        <pre><code>{
+                        <pre><code>curl -XPOST 'http://localhost:9200/drinks/beer/2' -d '{
     "name" : "Atak chmielu",
     "brewery" : "PINTA",
     "IBU" : 58,
     "rating" : [8.2, 3, 5]
-}</code></pre>
-                        <pre><code>'</code></pre>
+}'</code></pre>
                     </section>
                     <section>
                         <h3>To się jednak nie uda</h3>
-                        <pre><code>curl -XPOST 'http://localhost:9200/drinks/beer/3' -d '</code></pre>
-                        <pre><code>{
+                        <pre><code>curl -XPOST 'http://localhost:9200/drinks/beer/3' -d '{
     "name" : "Ursa z Połoniny",
     "brewery" : "Ursa Maior",
     "ABV" : "average"
-}</code></pre>
-                        <pre><code>'</code></pre>
+}'</code></pre>
+
                     </section>
                     <section>
                         <h2>Mapping</h2>
@@ -245,8 +240,7 @@ index.number_of_replicas: 2</code></pre>
                     <section>
                         <h2>Własny mapping</h2>
                         <p>Daje pełną kontrolę i gwarantuje brak niespodzianek.</p>
-                        <pre><code>curl -XPUT 'http://localhost:9200/drinks/beer/_mapping' -d '</code></pre>
-                        <pre><code>{
+                        <pre><code>curl -XPUT 'http://localhost:9200/drinks/beer/_mapping' -d '{
     "beer" : {
         "properties" : {
             "ABV" : {
@@ -264,32 +258,159 @@ index.number_of_replicas: 2</code></pre>
             }
         }
     }
-}</code></pre>
-                        <pre><code>'</code></pre>
+}'</code></pre>
+                    </section>
+                    <section>
+                        <h2>Mapping - co jeszcze</h2>
+                        <p>Mapping pozwala na inne ciekawe sztuczki:</p>
+                        <ul>
+                            <li>zbiorcze pole <strong>_all</strong> i określanie co się w nim znajdzie</li>
+                            <li>wygasanie dokumentów</li>
+                            <li>dodawanie timestampów</li>
+                            <li>routing</li>
+                            <li>dynamiczne mapowanie</li>
+                        </ul>
                     </section>
                 </section>
 
-
-
-
-
-
+                <section>
+                    <section>
+                        <h2>Dobieranie się do dokumentów</h2>
+                        <p>Czyli jak w końcu zobaczyć, czy to naprawdę działa</p>
+                    </section>
+                    <section>
+                        <h2>Pojedynczy dokument</h2>
+                        <pre><code>curl -XGET 'http://localhost:9200/drinks/beer/1?pretty'</code></pre>
+                        <pre><code>{
+    "_index" : "drinks",
+    "_type" : "beer",
+    "_id" : "1",
+    "_version" : 1,
+    "exists" : true, "_source" : {
+        "name" : "Sweet Cow",
+        "style" : "Milk stout",
+        "brewery" : "AleBrowar",
+        "ABV" : 5,
+        "rating": 7
+    }
+}</code></pre>
+                    </section>
+                    <section>
+                        <h2>Elasticsearch - silnik wyszukiwania</h2>
+                        <p>Kiedy więc w końcu będziemy szukać...</p>
+                    </section>
+                    <section>
+                        <h2>Uproszczone szukanie</h2>
+                        <pre><code>curl -XGET 'http://localhost:9200/_search?q=name:ursa'</code></pre>
+                        <pre><code>curl -XGET 'http://localhost:9200/_all/beer/_search?q=name:ursa'</code></pre>
+                        <pre><code>curl -XGET 'http://localhost:9200/drinks,books,cars/_search?q=name:ursa'</code></pre>
+                        <pre><code>curl -XGET 'http://localhost:9200/drinks/beer/_search?q=name:ursa'</code></pre>
+                        <p>Które polecenie nie działa i dlaczego?</p>
+                    </section>
+                    <section>
+                        <h2>Rezultaty wyszukiwania</h2>
+                        <pre><code>{
+    "took" : 1,
+    "timed_out" : false,
+    "_shards" : {
+    "total" : 5,
+        "successful" : 5,
+        "failed" : 0
+    },
+    "hits" : {
+        "total" : 1,
+        "max_score" : 0.15342641,
+        "hits" : [ {
+            "_index" : "drinks",
+            "_type" : "beer",
+            "_id" : "3",
+            "_score" : 0.15342641, "_source" :
+            {
+                "name" : "Ursa z Połoniny",
+                "brewery" : "Ursa Maior",
+                "ABV" : "a lot"
+            }
+        } ]
+    }
+}</code></pre>
+                    </section>
+                    <section>
+                        <h2>Query DSL</h2>
+                        <p>Tak naprawdę za to lubimy Elasticsearcha i tego się używa.</p>
+                        <p>Jest to odrobinę skomplikowane, ale daje ogrom możliwości.</p>
+                    </section>
+                    <section>
+                        <h2>Załadujmy dane</h2>
+                        <pre><code>curl -XPOST 'http://localhost:9200/drinks/beer/_bulk' --data-binary @data.json</code></pre>
+                        <p>Przykład bulk API.</p>
+                    </section>
+                    <section>
+                        <h2>Najprostsze query</h2>
+                        <pre><code>{
+    "query" : {
+        "match": {
+            "style" : "IPA"
+        }
+    }
+}
+</code></pre>
+                        <pre><code>curl -XGET "http://localhost:9200/drinks/beer/_search" -d @query1.json</code></pre>
+                    </section>
+                    <section>
+                        <h2>Wynik query</h2>
+                        <p>W wyniku query otrzymujemy wszystkie dopasowane dokumenty.</p>
+                        <p>Każdy wynik opatrzony jest dodatkowym polem <strong>_score</strong>.</p>
+                        <p>Możemy po tym normalnie sortować, domyślne sortowanie jest właśnie po malejącym score.</p>
+                    </section>
+                    <section>
+                        <h2>Filtry</h2>
+                        <pre><code>{
+    "filter" : {
+        "term" : { "style" : "ipa" }
+    }
+}</code></pre>
+                        <pre><code>curl -XGET "http://localhost:9200/drinks/beer/_search" -d @query1.json</code></pre>
+                    </section>
+                    <section>
+                        <h2>To jaka jest różnica?</h2>
+                    </section>
+                    <section>
+                        <p><strong>Filtry</strong> tylko filtrują, są dużo szybsze i podlegają cachowaniu.</p>
+                        <p><strong>Query</strong> dopasowują, są wolniejsze, ale o nie naprawdę chodzi w wyszukiwaniu tekstowym.</p>
+                    </section>
+                    <section>
+                        <h2>Łączenie</h2>
+                        <pre><code>{
+    "query" : {
+        "match": {
+            "_all" : "hops"
+        }
+    },
+    "filter" : {
+        "range" : {
+            "IBU" : { "from" : 50, "to" : 100 }
+        }
+    }
+}
+</code></pre>
+                        <pre><code>curl -XGET "http://localhost:9200/_search" -d @query-filter.json</code></pre>
+                    </section>
+                </section>
 
                 <section>
+                    <section>
+                        <h2>Pogrzebmy w ustawieniach</h2>
+                        <div>Czy już zauważyliście, że Elasticsearch jest zbyt przyjazny?</div>
+                        <div>
+                            <br>
+                        </div>
+                        <div>./config/elasticsearch.yml</div>
+                        <div>
+                            <pre><code>cluster.name: elasticsearch </code><code>node.name: "Kapitan Żbik"</code><code><br></code><code># a na produkcji koniecznie:</code><code>discovery.zen.minimum_master_nodes: 2</code><code>discovery.zen.ping.multicast.enabled: false</code><code>discovery.zen.ping.unicast.hosts: ["host1", "host2:port"]<br></code><code>action.disable_delete_all_indices: true<br></code></pre>
+                        </div>
+                    </section>
                 </section>
-            <section>
-                <h2>Pogrzebmy w ustawieniach</h2>
-                <div>Czy już zauważyliście, że Elasticsearch jest zbyt przyjazny?</div>
-                <div>
-                    <br>
-                </div>
-                <div>./config/elasticsearch.yml</div>
-                <div>
-                    <pre><code>cluster.name: elasticsearch </code><code>node.name: "Kapitan Żbik"</code><code><br></code><code># a na produkcji koniecznie:</code><code>discovery.zen.minimum_master_nodes: 2</code><code>discovery.zen.ping.multicast.enabled: false</code><code>discovery.zen.ping.unicast.hosts: ["host1", "host2:port"]<br></code><code>action.disable_delete_all_indices: true<br></code></pre>
-                </div>
-            </section>
             </div>
-
 
 		<script src="lib/js/head.min.js"></script>
 		<script src="js/reveal.min.js"></script>
