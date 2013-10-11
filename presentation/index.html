@@ -125,6 +125,54 @@
                     </section>
                     <section>
                         <h2>Więc co się właściwie stało?</h2>
+                        <p>Elasticsearch zrobił wszystko za nas:</p>
+                        <ul>
+                            <li>stworzył indeks <strong>drinks</strong> z domyślną liczbą shardów i replik</li>
+                            <li>stworzył typ <strong>beer</strong> i "zgadł" do niego mapping</li>
+                            <li>przydzielił dokumentowi koszmarne id</li>
+                        </ul>
+                        <pre><code>curl -XGET 'http://localhost:9200/_stats?pretty'</code></pre>
+                        <pre><code>curl -XGET 'http://localhost:9200/_search?pretty'</code></pre>
+                    </section>
+                    <section>
+                        <h2>Zacznijmy od początku</h2>
+                        <pre><code>curl -XDELETE 'http://localhost:9200/'</code></pre>
+                        <p>To akurat da się wyłączyć w config/elasticsearch.yml</p>
+                        <pre><code>action.disable_delete_all_indices: true</code></pre>
+                        <p>Ale to niewielka pomoc.</p>
+                    </section>
+                    <section>
+                        <h2>Liczba shardów</h2>
+                        <p>Nie można zmienić liczby shardów na działającym indeksie.
+                            Domyślne pięć to za mało, nic nie szkodzi dać więcej.
+                        </p>
+                        <pre><code>curl -XPUT 'http://localhost:9200/drinks/' -d '</code></pre>
+                        <pre><code>{
+    "settings" : {
+        "number_of_shards" : 32,
+        "number_of_replicas" : 2
+    }
+}</code></pre>
+                        <pre><code>'</code></pre>
+                        <p>Lub w ustawieniach</p>
+                        <pre><code>index.number_of_shards: 32
+index.number_of_replicas: 2</code></pre>
+                    </section>
+                    <section>
+                        <h2>Nazwa indeksu</h2>
+                        <p>Nie nazywaj indeksu tak, jakbyś chciał go nazwać (sic!)</p>
+                        <p>Nazwij <strong>alias</strong> tak jak chciałbyś nazwać indeks.
+                            Na zewnątrz używaj nazw aliasów.
+                        </p>
+                        <p>Dzięki temu kiedyś to Cię uratuje:</p>
+                        <pre><code>curl -XPOST 'http://localhost:9200/_aliases' -d '</code></pre>
+                        <pre><code>{
+    "actions" : [
+        { "remove" : {"index" : "drinks-original", "alias" : "drinks" } },
+        { "add" : { "index" : "drinks-new-setup", "alias" : "drinks" } }
+    ]
+}</code></pre>
+                        <pre><code>'</code></pre>
                     </section>
                 </section>
 
@@ -135,35 +183,6 @@
 
 
                 <section>
-                    <section>
-                        <h2>Stwórzmy indeks!</h2>
-                        <div>
-                            <br>
-                        </div>
-                        <div>
-                            <b>Indeks</b>
-                            <span> to nazwany "pojemnik" dla dokumentów różnego typu.</span>
-                        </div>
-                        <div>
-            <span>
-                <br>
-            </span>
-                        </div>
-                        <div>
-                            <pre><code>curl -XPUT 'http://localhost:9200/<font color="#a4c2f4">zjawy</font>/' </code>    </pre>
-                            <br>
-    <pre><code>curl -XPUT 'http://localhost:9200/<font color="#a4c2f4">zjawy</font>/' -d '{
-        &nbsp; &nbsp; "settings" : {
-        &nbsp; &nbsp; &nbsp; &nbsp; "number_of_shards" : 3,
-        &nbsp; &nbsp; &nbsp; &nbsp; "number_of_replicas" : 2
-        &nbsp; &nbsp; }
-        }' </code></pre>
-
-
-                        </div>
-
-
-                    </section>
                 </section>
             <section>
                 <h2>Pogrzebmy w ustawieniach</h2>
