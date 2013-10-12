@@ -400,7 +400,7 @@ index.number_of_replicas: 2</code></pre>
                     <section>
                         <p><strong>Filtry</strong> tylko filtrują, są dużo szybsze i podlegają cachowaniu.</p>
                         <p><strong>Query</strong> dopasowują, są wolniejsze, ale o nie naprawdę chodzi w wyszukiwaniu tekstowym.</p>
-                        <pre><code>curl -XGET "http://localhost:9200/drinks/beer" -d @simple-query-explain.json</code></pre>
+                        <pre><code>curl -XGET "http://localhost:9200/drinks/beer/_search" -d @simple-query-explain.json</code></pre>
                     </section>
                     <section>
                         <h2>Łączenie</h2>
@@ -600,6 +600,19 @@ discovery.zen.ping.unicast.hosts: ["host1", "host2:port"]</code></pre>
                 </section>
 
                 <section>
+                    <section>
+                        <h2>O czym nie powiedziałem</h2>
+                        <ul>
+                            <li>local gateway</li>
+                            <li>wersje dokumentów</li>
+                            <li>sortowanie</li>
+                            <li>routowanie</li>
+                            <li>zagnieżdżone dokumenty, parent/child</li>
+                            <li>geolokalizacyjne wyszukiwanie</li>
+                            <li>warmup indeksu</li>
+                            <li>percolator</li>
+                        </ul>
+                    </section>
                     <section>
                         <h1>Dziękuję!</h1>
                     </section>
